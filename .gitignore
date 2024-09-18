@@ -142,3 +142,9 @@ cython_debug/
 *.DS_Store
 .history
 .vscode
+
+# Search traces
+**/*.trace.yaml
+
+# Test output
+**/out/

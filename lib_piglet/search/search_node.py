@@ -1,5 +1,5 @@
 # search/search_node.py
-# 
+#
 # Data structure that represents a domain-independent search node
 #
 # @author: dharabor
@@ -8,23 +8,30 @@
 
 import sys, random
 from functools import total_ordering
+from typing import Generic, TypeVar
 
-class search_node:
+from lib_piglet.utils.identifier import get_random_id, identifier
 
-    def __init__(self):
+State = TypeVar("State")
+
+
+class search_node(Generic[State]):
+
+    def __init__(self, name:str=None):
+        self.id = name or identifier(self)
         # some default values for uninitialised nodes
         self.action_: object = None
-        self.state_: object = None
-        self.parent_: object = None
+        self.state_: State = None
+        self.parent_: search_node[State] = None
         self.g_: float = 0
         self.depth_: int = 0
         self.instance_: int = 0
-        
+
         self.h_: float = 0
-        self.f_ : float= 0
+        self.f_: float = 0
         self.timestep_: int = 0
-        self.closed_:bool = False
-        self.open_handle_: object = None
+        self.closed_: bool = False
+        self.priority_queue_handle_: object = None
         self.expanded: bool = False
 
     # Is the node closed
@@ -47,7 +54,7 @@ class search_node:
         return self.state_.__repr__()
 
     def __eq__(self, other):
-        if (other == None):
+        if other == None:
             return False
         return self.state_ == other.state_
 
@@ -57,25 +64,19 @@ class search_node:
 
 # Compare two node by g value
 # Return true if a >= b
-def compare_node_g(a: search_node, b:search_node):
-    return a.g_>=b.g_
+def compare_node_g(a: search_node, b: search_node):
+    return a.g_ >= b.g_
 
 
 # Compare two node by f value
 # Return true if a >= b
-def compare_node_f(a: search_node, b:search_node):
+def compare_node_f(a: search_node, b: search_node):
     if a.f_ == b.f_:
         return a.h_ >= b.h_
-    return a.f_>=b.f_
+    return a.f_ >= b.f_
 
 
 # Compare two node by h value
 # Return true if a >= b
-def compare_node_h(a: search_node, b:search_node):
-    return a.h_>=b.h_
-
-
-
-
-
-    
+def compare_node_h(a: search_node, b: search_node):
+    return a.h_ >= b.h_

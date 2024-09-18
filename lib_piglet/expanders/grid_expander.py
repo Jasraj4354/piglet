@@ -122,27 +122,27 @@ class grid_joint_expander(base_expander):
         if (self.domain_.get_tile((x, y - 1))):
             retval.append(grid_action())
             retval[-1].move_ = Move_Actions.MOVE_LEFT
-            retval[-1].cost_ = 1;
+            retval[-1].cost_ = 1
 
         if (self.domain_.get_tile((x, y + 1))):
             retval.append(grid_action())
             retval[-1].move_ = Move_Actions.MOVE_RIGHT
-            retval[-1].cost_ = 1;
+            retval[-1].cost_ = 1
 
         if (self.domain_.get_tile((x - 1, y))):
             retval.append(grid_action())
             retval[-1].move_ = Move_Actions.MOVE_UP
-            retval[-1].cost_ = 1;
+            retval[-1].cost_ = 1
 
         if (self.domain_.get_tile((x + 1, y))):
             retval.append(grid_action())
             retval[-1].move_ = Move_Actions.MOVE_DOWN
-            retval[-1].cost_ = 1;
+            retval[-1].cost_ = 1
 
         if (self.domain_.get_tile((x, y))):
             retval.append(grid_action())
             retval[-1].move_ = Move_Actions.MOVE_WAIT
-            retval[-1].cost_ = 1;
+            retval[-1].cost_ = 1
 
         return retval
 
