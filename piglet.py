@@ -5,19 +5,30 @@
 
 # # ──────────────────────────────────────────────────────────────────────────────
 
-from random import randint
-from lib_piglet.cli.cli_tool import *
-from lib_piglet.cli.run_tool import *
+import sys
+from typing import Union
 import os
 
+from lib_piglet.cli.cli_tool import (
+    csv_header,
+    is_log_mode,
+    parse_args,
+    parse_logger_args,
+    parse_problem,
+    parse_scen_header,
+    print_header,
+    statistic_csv,
+    statistic_string,
+)
+from lib_piglet.cli.run_tool import run_multi_tasks, run_task
 from lib_piglet.logging.search_logger import search_logger
 from lib_piglet.utils.identifier import get_random_id
 from lib_piglet.output.outputs import outputs
 from lib_piglet.output.base_output import base_output
 
 
-def get_logger(spec: list = [], auto_filename: str = None):
-    [key, filename,*_] = spec + [None] * 2
+def get_logger(spec: Union[list, None], auto_filename: str = None):
+    [key, filename, *_] = parse_logger_args(spec)
     key = "trace-file" if key == "trace" and filename else key
     logger = outputs[key] if key in outputs else base_output
     return search_logger(logger=logger(file=filename or auto_filename))
@@ -26,8 +37,7 @@ def get_logger(spec: list = [], auto_filename: str = None):
 def main():
 
     args = parse_args()
-    log_mode = args.log != None
-    if args.problem == None and sys.stdin.isatty():
+    if args.problem is None and sys.stdin.isatty():
         print("err; You must provide a problem scenario file or provide problem through standard input", file = sys.stderr)
         print("piglet.py -h for help", file=sys.stderr)
         exit(1)
@@ -43,7 +53,7 @@ def main():
             exit(1)
         source = open(args.problem)
 
-    if not log_mode:
+    if not is_log_mode(args.log):
         print_header(args.anytime)
     if args.output_file:
         out = open(args.output_file, "w+")

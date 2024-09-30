@@ -6,6 +6,7 @@
 
 import sys, argparse, os
 from enum import IntEnum
+from typing import Union
 from lib_piglet.output.base_output import base_output
 from lib_piglet.output.outputs import outputs
 from lib_piglet.utils.tools import eprint
@@ -207,7 +208,7 @@ def parse_args():
         ),
         metavar="uniform",
     )
-    
+
     parser.add_argument(
         "-x",
         "--problem-index",
@@ -244,12 +245,11 @@ def parse_args():
         "-l",
         "--log",
         type=str,
-        default='print',
         help=f"Specify a logging framework. Supported frameworks are [{', '.join(outputs.keys())}]. To output to a file, append a filename and choose the 'trace' logging framework.",
         metavar=("trace", "filename.trace.yaml"),
         nargs="*",
-    )    
-    
+    )
+
     parser.add_argument(
         "-i",
         "--id-threshold-type",
@@ -284,7 +284,6 @@ def parse_args():
         help="Set a heuristic weight for suboptimal a-star.",
         metavar=1.0,
     )
-
 
     parser.add_argument(
         "-m",
@@ -400,3 +399,22 @@ def parse_scen_header(content):
         print("err; Unknown domain type: {}".format(content[1]), file=sys.stderr)
         exit(1)
     return domain_type
+
+
+def is_log_mode(spec: Union[list, None]):
+    return spec is not None
+
+
+def get_logger_args_defaults(spec: Union[list, None]):
+    if not is_log_mode(spec):
+        # Not log mode (--log switch not present)
+        return []
+    elif spec == []:
+        # Log mode with defaults (--log switch present, with no arguments)
+        return ["print"]
+    # Log mode with arguments
+    return spec
+
+
+def parse_logger_args(spec: Union[list, None]):
+    return (spec or get_logger_args_defaults(spec)) + [None] * 2
