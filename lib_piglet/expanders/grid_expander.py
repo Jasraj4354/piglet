@@ -35,10 +35,15 @@ class grid_expander(base_expander):
     # @return : Possible next
     def expand(self, current: search_node):
         self.succ_.clear()
-        ################
-        # Implement your codes here
-        ################
+
+        current_state = current.state_
+        for valid_action in self.get_actions(current_state):
+
+            # generate new state based on valid action.
+            successor = self.__move(current_state,valid_action)
+            self.succ_.append((successor, valid_action))
         return self.succ_[:]
+
 
     # return a list with all the applicable/valid actions
     # at tile (x, y)
@@ -48,17 +53,57 @@ class grid_expander(base_expander):
         x = loc[0]
         y = loc[1]
         retval = []
-        ################
-        # Implement your codes here
-        ################
+
+        # Check if current position is within bounds
+        if (x < 0 or x >= int(self.domain_.height_) or y < 0 or y >= int(self.domain_.width_)):
+            return retval
+        
+        # Check if the tile is walkable
+        if (self.domain_.get_tile(loc) == False):
+            return retval
+        
+        # Check all four possible moves and add them if valid
+        if (self.domain_.get_tile((x, y - 1))):
+            retval.append(grid_action())
+            retval[-1].move_ = Move_Actions.MOVE_LEFT
+            retval[-1].cost_ = 1
+        
+        if (self.domain_.get_tile((x, y + 1))):
+            retval.append(grid_action())
+            retval[-1].move_ = Move_Actions.MOVE_RIGHT
+            retval[-1].cost_ = 1
+        
+        if (self.domain_.get_tile((x - 1, y))):
+            retval.append(grid_action())
+            retval[-1].move_ = Move_Actions.MOVE_UP
+            retval[-1].cost_ = 1
+        
+        if (self.domain_.get_tile((x + 1, y))):
+            retval.append(grid_action())
+            retval[-1].move_ = Move_Actions.MOVE_DOWN
+            retval[-1].cost_ = 1
+
+        if (self.domain_.get_tile((x, y))):
+            retval.append(grid_action())
+            retval[-1].move_ = Move_Actions.MOVE_WAIT
+            retval[-1].cost_ = 1
+        
+        # Return the list of valid actions
         return retval
 
     def __move(self, curr_state: tuple, move):
         x = curr_state[0]
         y = curr_state[1]
-        ################
-        # Implement your codes here
-        ################
+
+        if move.move_ == Move_Actions.MOVE_UP:
+            x -= 1
+        elif move.move_ == Move_Actions.MOVE_DOWN:
+            x += 1
+        elif move.move_ == Move_Actions.MOVE_LEFT:
+            y -= 1
+        elif move.move_ == Move_Actions.MOVE_RIGHT:
+            y += 1
+    
         return x, y
 
     def __str__(self):
