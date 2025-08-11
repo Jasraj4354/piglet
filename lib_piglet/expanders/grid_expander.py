@@ -87,6 +87,26 @@ class grid_expander(base_expander):
             retval.append(grid_action())
             retval[-1].move_ = Move_Actions.MOVE_WAIT
             retval[-1].cost_ = 1
+
+        # Check diagonal moves if needed
+        if (self.domain_.get_tile((x - 1, y - 1))):
+            retval.append(grid_action())
+            retval[-1].move_ = Move_Actions.MOVE_UP_LEFT
+            retval[-1].cost_ = 1
+        
+        if (self.domain_.get_tile((x - 1, y + 1))):
+            retval.append(grid_action())
+            retval[-1].move_ = Move_Actions.MOVE_UP_RIGHT
+            retval[-1].cost_ = 1
+        if (self.domain_.get_tile((x + 1, y + 1))):
+            retval.append(grid_action())
+            retval[-1].move_ = Move_Actions.MOVE_DOWN_RIGHT
+            retval[-1].cost_ = 1
+        if (self.domain_.get_tile((x + 1, y - 1))):
+            retval.append(grid_action())
+            retval[-1].move_ = Move_Actions.MOVE_DOWN_LEFT
+            retval[-1].cost_ = 1
+
         
         # Return the list of valid actions
         return retval
@@ -103,7 +123,24 @@ class grid_expander(base_expander):
             y -= 1
         elif move.move_ == Move_Actions.MOVE_RIGHT:
             y += 1
-    
+        
+        #diagonal moves
+        elif move.move_ == Move_Actions.MOVE_UP_LEFT:
+            x -= 1
+            y -= 1
+        
+        elif move.move_ == Move_Actions.MOVE_UP_RIGHT:
+            x -= 1
+            y += 1
+
+        elif move.move_ == Move_Actions.MOVE_DOWN_RIGHT:
+            x += 1
+            y += 1
+
+        elif move.move_ == Move_Actions.MOVE_DOWN_LEFT:
+            x += 1
+            y -= 1
+            
         return x, y
 
     def __str__(self):
