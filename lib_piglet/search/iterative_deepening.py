@@ -19,10 +19,19 @@ class ID_threshold(IntEnum):
 
 
 class iterative_deepening(base_search):
-
-    def __init__(self, open_list, expander: base_expander, heuristic_function=None, time_limit: int = sys.maxsize):
-        super(iterative_deepening, self).__init__(open_list, expander, heuristic_function, time_limit)
-        self.tree_search_engine: tree_search = tree_search(open_list, expander, heuristic_function, time_limit)
+    def __init__(
+        self,
+        open_list,
+        expander: base_expander,
+        heuristic_function=None,
+        time_limit: int = sys.maxsize,
+    ):
+        super(iterative_deepening, self).__init__(
+            open_list, expander, heuristic_function, time_limit
+        )
+        self.tree_search_engine: tree_search = tree_search(
+            open_list, expander, heuristic_function, time_limit
+        )
 
     # Search the path between two state
     # @param start_state The start of the path
@@ -37,35 +46,49 @@ class iterative_deepening(base_search):
         self.start_time = time.process_time()
         start_node = self.generate(start_state, None, None)
 
-        depth_threshold = start_node.depth_
+        # depth_threshold = start_node.depth_
+        # changed lines
+        if threshold_type == ID_threshold.depth:
+            threshold = start_node.depth_
+        else:
+            threshold = start_node.g_
+
         # Keep search until reach timelimit.
         while self.runtime_ < self.time_limit_:
             # Set time limit to DLS
             self.tree_search_engine.time_limit_ = self.time_limit_ - self.runtime_
-            
-            # Choose which value to limit based on search strategy, note tree_search_engine, is a tree_search implementation under
-            # lib_piglet/search/tree_search, check the interface of get_path, find what you can use to limit the search on cost.
-            self.tree_search_engine.name = f'depth-{depth_threshold}'
-            solution = self.tree_search_engine.get_path(self.start_, self.goal_, depth_limit=depth_threshold)
-            
-            # Search finishes, get the minimal depth of unexpanded nodes as the depth limit of next iteration. 
-            # Check tree search implementation on what results return after search finishes, find how you can get the minimal cost of 
-            # unexpanded nodes to limit the cost of next iteration.
-            next_depth = solution[1]
-            
+
+            if threshold_type == ID_threshold.depth:
+                name = f"depth-{threshold}"
+                solution, next_d, next_f = self.tree_search_engine.get_path(
+                    self.start_, self.goal_, depth_limit=threshold
+                )
+            else:
+                name = f"cost-{threshold}"
+                solution, next_d, next_f = self.tree_search_engine.get_path(
+                    self.start_, self.goal_, cost_limit=threshold
+                )
+
             # Update statistic info
             self.nodes_generated_ += self.tree_search_engine.nodes_generated_
             self.nodes_expanded_ += self.tree_search_engine.nodes_expanded_
             self.runtime_ = time.process_time() - self.start_time
 
-            if solution[0] is None:
-                if threshold_type == ID_threshold.depth and next_depth == sys.maxsize:
-                    self.solution_ = None
-                    self.status_ = "Failed"
-                    return None
-                depth_threshold = next_depth
+            if solution is None:
+                if threshold_type == ID_threshold.depth:
+                    if next_d == sys.maxsize:
+                        self.solution_ = None
+                        self.status_ = "Failed"
+                        return None
+                    threshold = next_d
+                else:
+                    if next_f == sys.maxsize:
+                        self.solution_ = None
+                        self.status_ = "Failed"
+                        return None
+                    threshold = next_f
             else:
-                self.solution_ = solution[0]
+                self.solution_ = solution
                 self.status_ = "Success"
                 return self.solution_
 
